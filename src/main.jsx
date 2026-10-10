@@ -8,6 +8,8 @@ import {
 	Asterisk,
 	Copy,
 	Mail,
+	Volume2,
+	VolumeX,
 	X,
 } from "lucide-react";
 import "./style.css";
@@ -43,8 +45,24 @@ const projects = [
 	},
 ];
 
+const SOUND_PREFERENCE_COOKIE = "portfolio-sound";
+function readSoundPreference() {
+	const value = document.cookie
+		.split(";")
+		.map((entry) => entry.trim())
+		.find((entry) => entry.startsWith(`${SOUND_PREFERENCE_COOKIE}=`))
+		?.split("=")[1];
+	return value === "on" ? true : value === "off" ? false : null;
+}
+function writeSoundPreference(enabled) {
+	document.cookie = `${SOUND_PREFERENCE_COOKIE}=${enabled ? "on" : "off"}; Max-Age=31536000; Path=/; SameSite=Lax`;
+	soundEnabled = enabled;
+}
+let soundEnabled = readSoundPreference() === true;
+let soundUnlocked = Boolean(navigator.userActivation?.hasBeenActive);
 const soundBank = {};
 function playSound(name, volume = 0.5) {
+	if (!soundEnabled || !soundUnlocked) return;
 	try {
 		const base =
 			soundBank[name] ||
@@ -1324,6 +1342,7 @@ function Diorama({
 					let p = hit.object;
 					while (p && !p.userData.dest) p = p.parent;
 					if (p?.userData.dest) {
+						playSound("mouse-click");
 						selectRef.current(p.userData.dest);
 						break;
 					}
@@ -1874,6 +1893,8 @@ function Diorama({
 function App() {
 	const [active, setActive] = useState(null),
 		[menuOpen, setMenuOpen] = useState(false),
+		[soundPreference, setSoundPreference] = useState(readSoundPreference),
+		[soundReady, setSoundReady] = useState(() => soundUnlocked),
 		[motion, setMotion] = useState(true),
 		[prefersReducedMotion, setPrefersReducedMotion] = useState(
 			() => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
@@ -1884,6 +1905,7 @@ function App() {
 		[time, setTime] = useState(new Date());
 	const menuButtonRef = useRef(null),
 		menuPanelRef = useRef(null),
+		soundDialogRef = useRef(null),
 		menuWasOpen = useRef(false),
 		experienceRef = useRef(null),
 		contactCardRef = useRef(null),
@@ -1894,6 +1916,53 @@ function App() {
 		wheelUnlockTimer = useRef(null);
 	wheelContext.current = { active, menuOpen };
 	const motionEnabled = motion && !prefersReducedMotion;
+	const chooseSoundPreference = (enabled) => {
+		writeSoundPreference(enabled);
+		setSoundPreference(enabled);
+	};
+	useEffect(() => {
+		const unlockSoundForSession = (event) => {
+			if (
+				event.type === "keydown" &&
+				["Tab", "Escape", "Shift", "Control", "Alt", "Meta"].includes(event.key)
+			)
+				return;
+			if (soundUnlocked) return;
+			soundUnlocked = true;
+			setSoundReady(true);
+		};
+		document.addEventListener("pointerdown", unlockSoundForSession, true);
+		document.addEventListener("click", unlockSoundForSession, true);
+		document.addEventListener("keydown", unlockSoundForSession, true);
+		return () => {
+			document.removeEventListener("pointerdown", unlockSoundForSession, true);
+			document.removeEventListener("click", unlockSoundForSession, true);
+			document.removeEventListener("keydown", unlockSoundForSession, true);
+		};
+	}, []);
+	useEffect(() => {
+		if (soundPreference !== null) return;
+		const dialog = soundDialogRef.current;
+		const firstButton = dialog?.querySelector("button");
+		requestAnimationFrame(() => firstButton?.focus());
+		const onKeyDown = (event) => {
+			if (event.key === "Escape") {
+				event.preventDefault();
+				chooseSoundPreference(false);
+			} else if (event.key === "Tab" && dialog) {
+				const buttons = [...dialog.querySelectorAll("button")];
+				if (event.shiftKey && document.activeElement === buttons[0]) {
+					event.preventDefault();
+					buttons.at(-1)?.focus();
+				} else if (!event.shiftKey && document.activeElement === buttons.at(-1)) {
+					event.preventDefault();
+					buttons[0]?.focus();
+				}
+			}
+		};
+		document.addEventListener("keydown", onKeyDown);
+		return () => document.removeEventListener("keydown", onKeyDown);
+	}, [soundPreference]);
 	useEffect(() => {
 		const media = window.matchMedia("(prefers-reduced-motion: reduce)");
 		const update = () => setPrefersReducedMotion(media.matches);
@@ -2201,6 +2270,21 @@ function App() {
 						<Asterisk size={14} aria-hidden="true" /> MOTION{" "}
 						{motionEnabled ? "ON" : "OFF"}
 					</button>
+					<button
+						className={`sound-toggle ${soundPreference && !soundReady ? "is-pending" : ""}`}
+						type="button"
+						onClick={() => chooseSoundPreference(!soundPreference)}
+						aria-label={soundPreference && !soundReady ? "Sound is on; click or tap once to activate audio for this visit" : soundPreference ? "Turn sound off" : "Turn sound on"}
+						aria-pressed={Boolean(soundPreference)}
+						title={soundPreference && !soundReady ? "Sound is on. Click or tap once anywhere to activate it for this visit." : soundPreference ? "Turn sound off" : "Turn sound on"}
+					>
+						{soundPreference ? (
+							<Volume2 size={15} aria-hidden="true" />
+						) : (
+							<VolumeX size={15} aria-hidden="true" />
+						)}
+						<span className="sound-label">{soundPreference ? soundReady ? "SOUND ON" : "SOUND ON · CLICK ONCE" : "SOUND OFF"}</span>
+					</button>
 					<button className="scroll-cue" onClick={() => setActive("engineer")}>
 						MEET THE ENGINEER <ArrowDown size={13} aria-hidden="true" />
 					</button>
@@ -2296,6 +2380,36 @@ function App() {
 					</button>
 				</div>
 			</footer>
+			{soundPreference === null && (
+				<div className="sound-consent-backdrop">
+					<section
+						ref={soundDialogRef}
+						className="sound-consent-dialog"
+						role="dialog"
+						aria-modal="true"
+						aria-labelledby="sound-consent-title"
+						aria-describedby="sound-consent-copy"
+					>
+						<div className="sound-consent-meta">
+							<span><Asterisk size={15} aria-hidden="true" /> PORTFOLIO AUDIO</span>
+							<span>OPTIONAL</span>
+						</div>
+						<h2 id="sound-consent-title">A little sound?</h2>
+						<p id="sound-consent-copy">
+							Small interface sounds add a bit of life to the experience. You can change this any time.
+						</p>
+						<div className="sound-consent-actions">
+							<button className="sound-consent-enable" onClick={() => chooseSoundPreference(true)}>
+								<Volume2 size={16} aria-hidden="true" /> ENABLE SOUND
+							</button>
+							<button className="sound-consent-silent" onClick={() => chooseSoundPreference(false)}>
+								CONTINUE SILENTLY
+							</button>
+						</div>
+						<small className="sound-consent-note">YOUR CHOICE IS SAVED ON THIS DEVICE FOR ONE YEAR.</small>
+					</section>
+				</div>
+			)}
 			{copyStatus && (
 				<div
 					className={`toast ${copyStatus === "error" ? "is-error" : ""}`}

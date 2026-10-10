@@ -73,6 +73,8 @@ Four scene objects correspond to four destinations. The scene labels are buttons
 | `toolkit` / 03 | Toolbox | Toolbox opening animation plays; six logo-bearing cards spread into floating positions above/around the toolbox. Cards have pointer hover and tap/click pin behavior. A responsive layout positions them for phone screens. |
 | `contact` / 04 | Envelope | Envelope opens; the contact card includes email, copy-email, and LinkedIn actions. On mobile the packet geometry is hidden and the contact card appears from the envelope origin after camera/envelope timing checks. |
 
+**Sound:** Small hover and laptop interaction effects play only when sound is enabled. First visit asks whether to enable sound; the choice is stored in a one-year `portfolio-sound` cookie. A separate, always-available sound toggle changes that preference. Browser audio autoplay permissions reset each visit, so the visitor must click, tap, or press a key once after reload before hover audio can play. Until then, the toggle indicates that activation is pending. The MOTION control remains independent and only governs scene motion.
+
 The laptop's screen noise/static is a **Work screen content transition**, not the removed model reveal. Keep those concepts separate: the user's latest instruction removed initial model appearance transitions only.
 
 ### Navigation and accessibility
@@ -84,6 +86,8 @@ The laptop's screen noise/static is a **Work screen content transition**, not th
 - Mobile keeps the full Three.js scene. Camera positions and toolkit tablet layout are separately tuned for compact screens.
 - Section labels are hidden on narrow mobile viewports to avoid overlapping each other.
 - Motion can be toggled and the app respects `prefers-reduced-motion`.
+- Sound is off until the visitor chooses. Persist both enabled and disabled choices so the first-visit prompt does not return on refresh. Keep the sound toggle distinct from the motion toggle.
+- A saved sound preference is not equivalent to browser autoplay activation. After each page load, wait for a trusted pointer or keyboard gesture before calling `Audio.play()` from hover/render-loop code. Keep the pending activation state visible to the visitor.
 - WebGL initialization/context failure displays a non-3D fallback for project links and contact.
 - Preserve keyboard focus indicators, meaningful control labels, accessible alternatives to canvas interactions, and independent scrolling for cards.
 

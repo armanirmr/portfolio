@@ -28,7 +28,7 @@ npm run preview  # Serve the production bundle locally
 - **Toolkit:** Open the toolbox to see six floating tool cards. Hover or tap them for emphasis.
 - **Get in Touch:** Open the envelope and use the email, copy-email, or LinkedIn actions.
 
-Navigation supports desktop mouse-wheel section changes, the bottom navigation, the menu, object selection, and keyboard shortcuts `1`–`4`. `Escape` returns to the world. On touch devices, swipe vertically to move between sections and tap objects or navigation controls. A motion toggle controls ambient motion; the app also respects the browser's reduced-motion preference. The profile card can scroll independently from desktop section navigation.
+Navigation supports desktop mouse-wheel section changes, the bottom navigation, the menu, object selection, and keyboard shortcuts `1`–`4`. `Escape` returns to the world. On touch devices, swipe vertically to move between sections and tap objects or navigation controls. A motion toggle controls ambient motion; the app also respects the browser's reduced-motion preference. Interface sound effects have a first-visit choice saved in a one-year cookie and a persistent in-page toggle. Browsers require a click, tap, or key press during each visit before they allow sound playback; the sound control indicates when that activation is still needed. The profile card can scroll independently from desktop section navigation.
 
 The interface includes accessible navigation alternatives for the 3D project controls and a fallback panel for exploring projects and contact details if WebGL cannot initialize.
 
