@@ -41,7 +41,7 @@ const projects = [
 		kind: "MUSIC SITE · FULIKULI OS",
 		note: "A playful, retro desktop inspired home for the band and its latest release.",
 		tech: "Next.js · Motion · Web",
-		url: "https://flkl.vercel.app/",
+		url: "https://www.fulikuli.com/",
 	},
 ];
 
