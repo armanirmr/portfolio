@@ -38,7 +38,7 @@ The interface includes accessible navigation alternatives for the 3D project con
 | --- | --- | --- |
 | Changeweft | AI-assisted software delivery workflow | [changeweft.armanirmr.workers.dev](https://changeweft.armanirmr.workers.dev/) |
 | Baja Coordinator Services | Bilingual customer-facing service | [bajacoordinatorservices.com](https://www.bajacoordinatorservices.com/) |
-| Fulikuli / FLKL | Music site and Fulikuli OS | [flkl.vercel.app](https:/www.fulikuli.com/) |
+| Fulikuli / FLKL | Music site and Fulikuli OS | [fulikuli.com](https://www.fulikuli.com/) |
 
 Contact: [armanirmr@gmail.com](mailto:armanirmr@gmail.com) · [LinkedIn](https://www.linkedin.com/in/armani-romero/)
 
